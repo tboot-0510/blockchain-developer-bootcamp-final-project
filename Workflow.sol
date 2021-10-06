@@ -51,7 +51,7 @@ contract Practitioner{
     enum title {Doctor, Consultant, Surgeon, Pharmacist};
 
     function updateRights(address _practitionerID){
-        // patient can create, delete, read and update it's own personal information 
+        // practitioner can create, delete, read and update it's own personal information 
     }
 
     function referPatient(address _practitionerID, address _patientID) internal{
@@ -73,7 +73,7 @@ contract Institution{
     mapping(uint => address) practitioners;
 
     function addPractitioner(uint _practitionerID, string _name) private{
-        // creates practioners data and add to ledger 
+        // creates practitioners data and add to ledger 
     }
 
     function setPractitioner(uint _practitionerID) private{
