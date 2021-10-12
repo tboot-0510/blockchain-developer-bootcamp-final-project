@@ -1,24 +1,27 @@
-import { useWeb3React } from "@web3-react/core";
-import {formatEther} from "@ethersproject/units"
-import { useAppContext } from "../AppContext";
+import React, { useEffect, useState } from 'react';
+import { useWeb3React } from '@web3-react/core';
+import { formatEther } from '@ethersproject/units';
+import { useAppContext } from '../AppContext';
 
 const useEth = () => {
   const {active, library, account} = useWeb3React();
   const {ethBalance, setEthBalance} = useAppContext();
-  
 
-  const fetchEthBalance = async () => {
-    console.log(setEthBalance());
-    if (library && active && account) {
-      const balance = await library.eth.getBalance(account);
-      setEthBalance(parseFloat(formatEther(balance)).toFixed(3));
-      console.log('success', parseFloat(formatEther(balance)).toFixed(3));
+  useEffect(() => {
+    if (account){
+      fetchBalance();
+    };
+  }, [account]);
+
+  const fetchBalance = async () => {
+    if (library && account && active){
+      const balance = await library.getBalance(account);
+      setEthBalance(parseFloat(formatEther(balance)).toPrecision(3));
     } else {
       setEthBalance('--');
     }
   };
-  
-  return {ethBalance, fetchEthBalance};
-}
+  return {ethBalance, fetchBalance};
+};
 
 export default useEth;

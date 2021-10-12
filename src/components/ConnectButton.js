@@ -1,26 +1,25 @@
 import React, {useEffect} from 'react';
+import {Container} from 'react-bootstrap';
 import { useWeb3React } from '@web3-react/core';
 import { injected } from '../connectors';
 import {Box, Button, Text, Heading} from '@chakra-ui/react'
-import useEth from "../hooks/useEth";
-import { useAppContext } from '../AppContext';
+import useEth from '../hooks/useEth';
 
 type Props = {
-  handleOpenModal:any;
+  handleOpenModal : any;
 }
 
-const ConnectButton = ({handleOpenModal}: Props) => {
+const ConnectButton = ({handleOpenModal}:Props) => {
   const {activate, active, account, deactivate} = useWeb3React();
-  const {ethBalance, fetchEthBalance} = useEth();
-  
+  const {fetchBalance, ethBalance} = useEth();
+
   function handleConnectWallet(){
     activate(injected);
   }
 
   useEffect(() => {
-    console.log('use effect ')
-    if (account) {
-      fetchEthBalance();
+    if (account){
+      fetchBalance();
     }
   }, [account]);
 
@@ -34,7 +33,7 @@ const ConnectButton = ({handleOpenModal}: Props) => {
     >
       <Box px="5">
         <Text color="white" fontSize="md">
-          Status : {ethBalance}🟢 
+          🟢 {ethBalance} ETH
         </Text>
       </Box>
       <Button
@@ -62,9 +61,9 @@ const ConnectButton = ({handleOpenModal}: Props) => {
       </Button>
     </Box>
   ) : (
-    <Button onClick={handleConnectWallet}> 
-      Connect to a wallet
-    </Button>
+    <Box>
+      <Button onClick={() => handleConnectWallet()}> Connect to a wallet </Button>
+    </Box>
   );
 };
 
