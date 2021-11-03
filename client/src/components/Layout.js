@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { Flex, Spacer } from "@chakra-ui/react";
+import { Flex, Spacer, Grid, GridItem } from "@chakra-ui/react";
 
 type Props = {
   children?: ReactNode;
@@ -8,7 +8,7 @@ type Props = {
 export default function Layout({ children }: Props) {
   return (
     <Flex
-      flexDirection="column"
+      flexDirection="row"
       alignItems="center"
       justifyContent="center"
       h="100vh"

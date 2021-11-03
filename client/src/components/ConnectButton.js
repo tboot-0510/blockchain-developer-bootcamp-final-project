@@ -13,11 +13,20 @@ const ConnectButton = ({handleOpenModal}:Props) => {
   const {activate, active, account, deactivate} = useWeb3React();
   const {fetchBalance, ethBalance} = useEth();
 
+  const checkWallet = async () => {
+    const {ethereum} = window;
+
+    const accounts = await ethereum.request({method: 'eth_accounts'});
+    console.log(accounts)
+  }
+
+
   function handleConnectWallet(){
     activate(injected);
   }
 
   useEffect(() => {
+    checkWallet();
     if (account){
       fetchBalance();
     }
