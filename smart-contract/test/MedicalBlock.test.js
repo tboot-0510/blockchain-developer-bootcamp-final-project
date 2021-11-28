@@ -22,50 +22,78 @@ describe("MedicalBlock contract", function () {
     assert.ok(contract, 'test failed');
   });
   describe("ContractOwner methods", function () {
+    /**
+     * Checks that the contract inherits OpenZeppelin Ownable by using owner()
+     */
+    it("ContractOwner -> owner() should be same", async function () {
+      expect(await contract.owner()).to.equal(contractOwner.address)
+    })
+    /**
+     * Checks that the contract owner can add admin to blockchain
+     */
     it("ContractOwner -> Should add admin to blockchain", async function () {
       await contract.addAdmin(admin.address);
       var exist = await contract.seeAdminExists(admin.address);
       expect(exist).to.equal(true);
     });
-  
-    it("ContractOwner -> Should add doctors to blockchain", async function () {
-      await expect(contract.addDoctor(doctorA.address, "Dr Monk"))
-        .to.emit(contract, 'AddedProvider')
-        .withArgs(contractOwner.address, doctorA.address);
-      var exist = await contract.seeDoctorExists(doctorA.address);
-      expect(exist).to.equal(true);
-    });
   });
   describe("Admin methods", function () {
+    /**
+     * Checks that admin can add doctors to the blockchain 
+     */
     it("Admin -> Should add doctors to blockchain", async function () {
       await expect(contract.connect(admin).addDoctor(doctorB.address, "Dr House"))
         .to.emit(contract, 'AddedProvider')
         .withArgs(admin.address, doctorB.address);
+        await expect(contract.connect(admin).addDoctor(doctorA.address, "Dr Monk"))
+        .to.emit(contract, 'AddedProvider')
+        .withArgs(admin.address, doctorA.address);
       var exist = await contract.seeDoctorExists(doctorB.address);
+      var exist2 = await contract.seeDoctorExists(doctorA.address);
       expect(exist).to.equal(true);
+      expect(exist2).to.equal(true);
     });
-  });
-  describe("Doctor methods", function() {
-    it("Doctors -> Should add patients to blockchain", async function () {
-      await expect(contract.connect(doctorA).addPatient(patientA.address, "Theo Bigwig"))
+    /**
+     * Checks that admin can add patients to the blockchain 
+     */
+    it("Admin -> Should add patients to blockchain", async function () {
+      await expect(contract.connect(admin).addPatient(patientA.address, "Theo Bigwig"))
         .to.emit(contract, 'AddedPatient')
-        .withArgs(doctorA.address, patientA.address);
-      await expect(contract.connect(doctorB).addPatient(patientB.address, "Susan Smith"))
+        .withArgs(admin.address, patientA.address);
+      await expect(contract.connect(admin).addPatient(patientB.address, "Susan Smith"))
         .to.emit(contract, 'AddedPatient')
-        .withArgs(doctorB.address, patientB.address);
+        .withArgs(admin.address, patientB.address);
       var exist = await contract.seePatientExists(patientA.address);
       var exist2 = await contract.seePatientExists(patientB.address);
       expect(exist).to.equal(true);
       expect(exist2).to.equal(true);
     });
+    /**
+     * Checks that admin can deleter users from the blockchain 
+     */
+    it("Admin -> Should delete patients & doctors from blockchain", async function () {
+      await expect(contract.connect(admin).deleteAccount(patientB.address))
+        .to.emit(contract, 'DeleteUser')
+        .withArgs(admin.address, patientB.address);
+      await expect(contract.connect(admin).deleteAccount(doctorB.address))
+        .to.emit(contract, 'DeleteUser')
+        .withArgs(admin.address, doctorB.address);
+      var exist = await contract.seePatientExists(patientB.address);
+      var exist2 = await contract.seeDoctorExists(doctorB.address);
+      expect(exist).to.equal(false);
+      expect(exist2).to.equal(false);
+    });
   });
 
   describe("Get roles", function () {
+    /**
+     * Checks that roles of the added users
+     */
     it("Should get right roles", async () => {
-      const ownerRole = await contract.getRole();
-      const adminRole = await contract.connect(admin).getRole();
-      const doctorRole = await contract.connect(doctorA).getRole();
-      const patientRole = await contract.connect(patientA).getRole();
+      const ownerRole = await contract.getRole(contractOwner.address);
+      const adminRole = await contract.getRole(admin.address);
+      const doctorRole = await contract.getRole(doctorA.address);
+      const patientRole = await contract.getRole(patientA.address);
       
       expect(ownerRole).to.equal(0);
       expect(adminRole).to.equal(1);
@@ -75,6 +103,9 @@ describe("MedicalBlock contract", function () {
   });
 
   describe("Grant access", function () {
+    /**
+     * Checks that PatientA grants access to DoctorA
+     */
     it("Patient A grants access to DoctorA", async function () {
       await expect(contract.connect(patientA).grantAccess(doctorA.address))
         .to.emit(contract, 'AccessGranted')
@@ -83,6 +114,32 @@ describe("MedicalBlock contract", function () {
       expect(perm.read).to.equal(true);
       expect(perm.write).to.equal(true);
     });
+    /**
+     * Checks that DoctorA grants patientA READ access to DoctorB
+     */
+    it("DoctorA grants READ access PatientA to DoctorB", async function () {
+      await expect(contract.connect(admin).addDoctor(doctorB.address, "Dr House"));
+      await expect(await contract.connect(doctorA).grantAccessDocToDoc(patientA.address, doctorB.address))
+        .to.emit(contract, 'AccessGranted')
+        .withArgs(doctorA.address, doctorB.address);
+      var perm = await contract.getPermissions(patientA.address, doctorB.address);
+        expect(perm.read).to.equal(true);
+        expect(perm.write).to.equal(false);
+    });
+    /**
+     * Checks that PatientA revokes access to DoctorB
+     */
+    it("Patient A revokes access to DoctorB", async () => {
+      await expect(contract.connect(patientA).revokeAccess(doctorB.address))
+        .to.emit(contract, 'AccessRevoked')
+        .withArgs(patientA.address, doctorB.address);
+      var perm = await contract.getPermissions(patientA.address, doctorB.address);
+      expect(perm.read).to.equal(false);
+      expect(perm.write).to.equal(false);
+    });
+    /**
+     * Checks that PatientA revokes access to DoctorA
+     */
     it("Patient A revokes access to DoctorA", async () => {
       await expect(contract.connect(patientA).revokeAccess(doctorA.address))
         .to.emit(contract, 'AccessRevoked')
@@ -91,7 +148,11 @@ describe("MedicalBlock contract", function () {
       expect(perm.read).to.equal(false);
       expect(perm.write).to.equal(false);
     });
+    /**
+     * Checks that PatientB grants access to DoctorA
+     */
     it("Patient B grants access to DoctorA", async function () {
+      await expect(contract.connect(admin).addPatient(patientB.address, "Susan Smith"))
       await expect(contract.connect(patientB).grantAccess(doctorA.address))
         .to.emit(contract, 'AccessGranted')
         .withArgs(patientB.address, doctorA.address);
@@ -99,52 +160,67 @@ describe("MedicalBlock contract", function () {
       expect(perm.read).to.equal(true);
       expect(perm.write).to.equal(true);
     });
-    it("DoctorA can read patient info of PatientB", async function () {
-      expect(await contract.seePatientExists(patientB.address)).to.equal(true);
-      var patientInfo = await contract.connect(doctorA).getPatientInfo(patientB.address);
-      expect(patientInfo[1]).to.equal("Susan Smith");
-      expect(patientInfo[2]).to.equal(patientB.address);
-    });
-    it("DoctorB can not read patient info of PatientB", async function () {
-      expect(await contract.seePatientExists(patientB.address)).to.equal(true);
-      await expect(contract.connect(doctorB).getPatientInfo(patientB.address)).to.be.reverted;
-    });
   });
 
   describe("Add Digital EHR", function () {
+    /**
+     * Checks that PatientB can create EHR
+     */
     it("Create empty EhR", async () => {
       expect(await contract.seePatientExists(patientB.address)).to.equal(true);
-      await expect(contract.connect(patientB).createEmptyEHR())
+      const EHRhash = ethers.utils.id("this is genesis block"); 
+      await expect(contract.connect(patientB).createDefaultEHR(EHRhash))
         .to.emit(contract, 'CreateEHR')
         .withArgs(patientB.address);
     });
+    /**
+     * Checks that Permissioned doctor can update the patient's EHR
+     */
     it("Permissioned doctor can update patient's EHR", async () => {
       const EHRhash = ethers.utils.id("this is an update"); 
       await expect(contract.connect(doctorA).updateEHR(patientB.address, EHRhash))
         .to.emit(contract, 'UpdatedEHR')
         .withArgs(patientB.address, doctorA.address, EHRhash);
     });
+    /**
+     * Checks that Permissoned doctor can access all patients records
+     */
     it("Permissoned doctor can get all records of patient", async () => {
       const EHRhash = ethers.utils.id("new update");
       await contract.connect(doctorA).updateEHR(patientB.address, EHRhash);
       const records = await contract.connect(doctorA).getRecords(patientB.address);
       expect(records._accessKeys.length).to.equal(3);
     })
+    /**
+     * Checks that Patient can get his own EHRs
+     */
+    it("Patient can get access to records", async () => {
+      const records = await contract.connect(patientB).getOwnRecords();
+      expect(records._accessKeys.length).to.equal(3);
+    })
   })
   describe("Get all authorized records", function() {
+    /**
+     * Checks that DoctorA should have 2 patients under his supervision
+     */
     it("Doctor A should have 2 patients (A/B) under the supervision", async () => {
       await expect(contract.connect(patientA).grantAccess(doctorA.address))
         .to.emit(contract, 'AccessGranted')
         .withArgs(patientA.address, doctorA.address);
       const patients = await contract.connect(doctorA).getAuthPatients();
+      expect(patients.length).to.equal(2);
     });
+    /**
+     * Checks that PatientA has access to authorized doctors
+     */
     it("Patient A should have 2 authorized doctors", async () => {
       await expect(contract.connect(patientA).grantAccess(doctorB.address))
         .to.emit(contract, 'AccessGranted')
         .withArgs(patientA.address, doctorB.address);
       const doctors = await contract.connect(patientA).getAuthDoctors();
+      expect(doctors.length).to.equal(2);
     });
-  })
+  });
 });
 
 

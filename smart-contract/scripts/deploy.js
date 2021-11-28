@@ -14,10 +14,15 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
+  const [owner, randomPerson] = await hre.ethers.getSigners();
   const HealthContractFactory = await hre.ethers.getContractFactory('MedicalBlock');
   const HealthContract = await HealthContractFactory.deploy();
   await HealthContract.deployed();
   console.log('Contract deployed to:', HealthContract.address);
+  console.log("Contract deployed by:", owner.address);
+  await HealthContract.addAdmin("0x54639a506d5C0BF68e765775fb895c0d4413B5De")
+  console.log('Added Admin 0x54639a506d5C0BF68e765775fb895c0d4413B5De');
+
 }
 
 // We recommend this pattern to be able to use async/await everywhere

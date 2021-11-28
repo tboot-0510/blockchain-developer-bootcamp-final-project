@@ -2,25 +2,30 @@ import {
   Heading,
   Avatar,
   Box,
-  Center,
-  Image,
   Flex,
   Text,
   Stack,
   Button,
+  IconButton,
+  AvatarBadge,
   useColorModeValue,
-  Spacer
+  useToast
 } from '@chakra-ui/react';
-import ConnectButton from './ConnectButton';
+import React, { useEffect, useState } from 'react';
+import {useHistory} from 'react-router-dom'
+import { shortenAddress } from '../utils/shortenAddress';
+import Identicon from "../components/IdentityIcon";
+import { DeleteIcon } from '@chakra-ui/icons'
 
-export const ProfileTab = ({title, userID}) => {
+export const ProfileTabLandingPage = ({title, userID, address, pageID}) => {
+  const history = useHistory();
+
   return (
     <Box
       m={8}
-      maxW={'270px'}
-      w={'full'}
+      minW={'250px'}
       h={'50vh'}
-      bg={useColorModeValue('white', 'gray.800')}
+      bg={'white'}
       boxShadow={'2xl'}
       rounded={'md'}
       overflow={'hidden'}>
@@ -41,70 +46,62 @@ export const ProfileTab = ({title, userID}) => {
             {title}
           </Heading>
           <Text color={'gray.500'}>@{userID}</Text>
+          <Text color={'gray.500'}>{shortenAddress(address)}</Text>
         </Stack>
-
-        {/* <Stack direction={'row'} justify={'center'} spacing={6}>
-          <Stack spacing={0} align={'center'}>
-            <Text fontWeight={600}>23k</Text>
-            <Text fontSize={'sm'} color={'gray.500'}>
-              Followers
-            </Text>
-          </Stack>
-          <Stack spacing={0} align={'center'}>
-            <Text fontWeight={600}>23k</Text>
-            <Text fontSize={'sm'} color={'gray.500'}>
-              Followers
-            </Text>
-          </Stack>
-        </Stack> */}
-
         <Button
-          w={'full'}
+          w={'200px'}
           mt={8}
           bg={useColorModeValue('#151f21', 'gray.900')}
           color={'white'}
           rounded={'md'}
+          onClick={() => history.push(pageID)}
           _hover={{
             transform: 'translateY(-2px)',
             boxShadow: 'lg',
           }}>
           Connect now
         </Button>
-        <Button
-          w={'full'}
-          mt={4}
-          bg={useColorModeValue('#f0f8ff', 'blue.900')}
-          color={'black'}
-          rounded={'md'}
-          _hover={{
-            transform: 'translateY(-2px)',
-            boxShadow: 'lg',
-          }}>
-          Register now
-        </Button>
-        {/* <ConnectButton /> */}
       </Box>
     </Box>
   );
 }
 
 
-// export default function Profiles() {
-//   return (
-//     <Box>
-//       <Flex 
-//         justify={"center"}
-//         direction={{ base: "column-reverse", md: "row" }}
-//         wrap="wrap"
-//         minH="auto"
-//         px={5}
-//       >
-//         <ProfileTab title="admin" userID="admin" />
-//         <ProfileTab title="patient A" userID="patient_A" />
-//         <ProfileTab title="patient B" userID="patient_B" />
-//         <ProfileTab title="doctor A" userID="doctor_A" />
-//         <ProfileTab title="doctor B" userID="doctor_B" />        
-//       </Flex>
-//     </Box>
-//   )
-// }
+export const ProfileTab = ({title, userID, address, callbackFn}) => {
+
+  function handleClick(){
+    callbackFn(address);
+  }
+
+  return (
+    <Box
+      m={0.5}
+      w={'95px'}
+      h={'auto'}
+      rounded={'md'}
+      overflow={'hidden'}
+    >
+      <Flex direction="row" justify={'center'} mt={2} >
+        <Identicon account={address} size={50}/>
+      </Flex>
+      <Box p={1}>
+        <Stack spacing={0} align={'center'} mb={1}>
+          <Flex direction="row">
+            <Heading fontSize={'md'} fontWeight={500} fontFamily={'body'}>
+              {title}
+            </Heading>
+            <IconButton 
+              size="20px" 
+              ml={2} 
+              onClick={handleClick}
+              icon={<DeleteIcon boxSize="12px"/>} 
+            />
+          </Flex>
+          <Text fontSize={"sm"} color={'gray.500'}>{shortenAddress(address)} </Text>
+          <Text fontSize={"sm"} color={'gray.500'}>@{userID}</Text>
+        </Stack>
+      </Box>
+      
+    </Box>
+  )
+}

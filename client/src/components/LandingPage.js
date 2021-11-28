@@ -15,19 +15,20 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react';
 
-import { ProfileTab } from './Profiles';
+import { ProfileTabLandingPage } from './Profiles';
 
 interface User {
   id: string;
   name: string;
   role: string;
+  page: String;
 }
 
 export default function LandingSet(){
   const [allProfiles, setProfiles] = useState<User[]>([
-    { id: "0", name: "admin", role: "admin" },
-    { id: "1", name: "Doctor", role: "doctor" },
-    { id: "2", name: "Patient", role: "patient" },
+    { id: "0", name: "Admin", role: "admin", page: "/admin"},
+    { id: "1", name: "Doctor", role: "doctor", page: "/doctor" },
+    { id: "2", name: "Patient", role: "patient", page: "/patient"},
   ]);
 
   return (
@@ -36,7 +37,7 @@ export default function LandingSet(){
       wrap="wrap"
     >
       <Flex className='display_users' >
-        {allProfiles ? allProfiles.map((item, index) => <ProfileTab key={index} title={item.name} userID={item.role}/>) :""}
+        {allProfiles ? allProfiles.map((item, index) => <ProfileTabLandingPage key={index} title={item.name} userID={item.role} pageID={item.page}/>) :""}
       </Flex>
     </Flex>
   )

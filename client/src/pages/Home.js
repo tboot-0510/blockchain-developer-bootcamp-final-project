@@ -31,17 +31,6 @@ function Logo(){
 }
 
 const Home = () => {
-  // const {isOpen, onOpen, onClose} = useDisclosure();
-  // const {ethBalance, fetchBalance} = useEth();
-  // const {activate, library, account, deactivate} = useWeb3React();
-  
-  
-  // return (
-  //   <Container className="mt-5">
-  //     <MetaMaskButton />
-  //     <Balance />
-  //   </Container>
-  // )
   return (
     <Flex
       flexDirection="row"
@@ -55,10 +44,6 @@ const Home = () => {
         <LandingSet />
       </Stack>
     </Flex>
-    // {/* <FormUserPage /> */}
-    // {/* <ConnectButton handleOpenModal={onOpen}/> */}
-    // {/* <AccountModal isOpen={isOpen} onClose={onClose}/> */}
-    // </Layout>
   )
 };
 

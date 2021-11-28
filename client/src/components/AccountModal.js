@@ -101,7 +101,7 @@ const AccountModal = ({isOpen, onClose}: Props) => {
                 }}
                 onClick={handleDeactivateAccount}
               >
-                Disconnect
+                Log Out
               </Button>
             </Flex>
             <Flex alignItems="center" mt={3} mb={5} lineHeight={1}>

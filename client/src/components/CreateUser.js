@@ -1,138 +1,134 @@
-import React, {useState, useEffect} from 'react';
-import { useForm } from "react-hook-form";
-import { generate } from "shortid";
-import { produce } from "immer";
+import React, {useState} from "react";
 import {
-  Flex,
   Box,
+  Button,
+  ButtonGroup,
   FormControl,
   FormLabel,
+  FormErrorMessage,
+  useDisclosure,
   Input,
   Select,
-  Checkbox,
-  Stack,
-  Link,
-  Button,
-  Heading,
-  Text,
-  useColorModeValue,
-} from '@chakra-ui/react';
+  Alert,
+  AlertIcon,
+  AlertTitle
+} from "@chakra-ui/react";
+import { Controller, useForm } from "react-hook-form";
 
-import { ProfileTab } from './Profiles';
+import validate from "./validate";
+import { useWeb3React } from "@web3-react/core";
 
-interface User {
-  id: string;
-  name: string;
-  role: string;
-}
+const options = [
+  // { value: 'admin', label: 'Admin' },
+  { value: 'doctor', label: 'Doctor' },
+  { value: 'patient', label: 'Patient' },
 
-const FormUser = () => {
-  const [allProfiles, setProfiles] = useState<User[]>([
-    { id: "0", name: "admin", role: "admin" },
-    { id: "1", name: "Hospital", role: "admin" },
-    { id: "2", name: "Patient", role: "admin" },
-  ]);
-  const [valueSelect, setValueSelect] = useState("")
-  const [valueName, setValueName] = useState("")
+];
 
-  const handleChangeSelect = (event) => {
-    setValueSelect(event.target.value)
-  }
-  const handleChangeInput = (event) => {
-    setValueName(event.target.value)
-  }
+const FormApp = ({id, onSubmit}) => {
+  const { register, handleSubmit, control, watch, reset, formState: { errors, isSubmitting } } = useForm();
+  const {active} = useWeb3React();
+  const {onClose} = useDisclosure();
 
-  const { register, handleSubmit, formState: {isSubmitting } } = useForm();
-
-  let profiles = []
-
-  // function createUserToggle(info) {
-  //   // Create user profile tab 'Profiles.js'
-  //   profiles.push(info)
-  //   setProfiles(allProfiles => [...allProfiles, profiles])
-  // }
-
-  const createUserToggle = (event) => {
-    const name = valueName;
-    const role = valueSelect;
-    setProfiles(currentProfile => [...currentProfile,
-      {
-        id: generate(),
-        name: name,
-        role: role
-      }
-    ]);
-  }
   return (
-    <Flex 
-      direction="row"
-      wrap="wrap"
-    >
-      <Flex className='create_user'
-        minH={'100vh'}
-        direction={'row'}
-        align={'center'}
-        justify={'center'}
-        bg={useColorModeValue('gray.50', 'gray.800')}>
-        <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
-          <Stack align={'center'}>
-            <Heading fontSize={'4xl'}>Create user to blockchain</Heading>
-          </Stack>
-          <Box
-            rounded={'lg'}
-            bg={useColorModeValue('white', 'gray.700')}
-            boxShadow={'lg'}
-            p={8}>
-            <Stack spacing={4}>
-              <FormControl id="Name">
-                <FormLabel>Name</FormLabel>
-                <Text> {valueName} </Text>
-                <Input 
-                  type="Name"
-                  value={valueName}
-                  onChange={handleChangeInput}
-                />
-              </FormControl>
-              <FormControl id="password">
-                <FormLabel>Role</FormLabel>
-                <Select 
-                  value={valueSelect} 
-                  onChange={handleChangeSelect} 
-                  placeholder="Select role"
-                >
-                  <option value="admin">Admin</option>
-                  <option value="doctor">Doctor</option>
-                  <option value="patient">Patient</option>
-                </Select>
-                <Text> {valueSelect} </Text>
-              </FormControl>
-              <Stack spacing={10}>
-                <Button
-                  bg={'blue.400'}
-                  color={'white'}
-                  _hover={{
-                    bg: 'blue.500',
-                  }}
-                  onClick={createUserToggle}
-                  >
-                  Create User
-                </Button>
-              </Stack>
-            </Stack>
-          </Box>
-        </Stack>
-      </Flex>
-      <Flex className='display_users' >
-        {allProfiles ? allProfiles.map((item, index) => <ProfileTab key={index} title={item.name} userID={item.role}/>) :""}
-      </Flex>
-    </Flex>
+    <Box w={"full"} p={4} m="10px auto">
+      {!active && <Alert status="error">
+                    <AlertIcon />
+                    <AlertTitle mr={2}>Not connected to Metamask</AlertTitle>
+                  </Alert>}
+      <form onSubmit={handleSubmit(onSubmit)}>
+      <FormControl isInvalid={errors.name}>
+        <FormLabel mt={4} htmlFor="firstname-div">First Name</FormLabel>
+          <Controller
+            control={control}
+            name="firstname"
+            render={({ field }) => (
+              <Input
+                id="firstname"
+                placeholder="First Name"
+                {...register("firstname", {
+                  required: "This is required",
+                  minLength: { value: 3, message: "Minimum length should be 3" }
+                })}
+              />
+            )}
+          />
+        <FormLabel mt={4} htmlFor="lastname-div"> Last Name</FormLabel>
+          <Controller
+            control={control}
+            name="lastname"
+            render={({ field }) => (
+              <Input
+                id="lastname"
+                placeholder="Last Name"
+                {...register("lastname", {
+                  required: "This is required",
+                  minLength: { value: 3, message: "Minimum length should be 3" }
+                })}
+              />
+            )}
+          />
+        <FormLabel mt={4} htmlFor="select-div"> Select Role</FormLabel>
+          <Controller
+            control={control}
+            name="role"
+            render={({ field }) => (
+              <Select
+                id="role"
+                placeholder="Select role ..."
+                {...register("role", {
+                  required: "This is required",
+                })}
+              >
+                {options.map((item, index) => (
+                  <option key={index} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </Select>
+            )}
+          />
+        <FormLabel mt={4} htmlFor="address-div"> ETH Address</FormLabel>
+          <Controller
+            control={control}
+            name="lastname"
+            render={({ field }) => (
+              <Input
+                id="address"
+                placeholder="ETH Address"
+                {...register("address", {
+                  required: "This is required",
+                  // minLength: { value: 42, message: "Minimum length should be 3" }
+                })}
+              />
+            )}
+          />
+          <FormErrorMessage>
+            {errors.name && errors.name.message}
+          </FormErrorMessage>
+        </FormControl>
+        <ButtonGroup mt={4} spacing={4}>
+          <Button 
+            isLoading={isSubmitting}
+            colorScheme="blue" 
+            loadingText="Submitting"
+            type="submit"
+            onClick={onClose}
+            disabled={!active}
+          >
+            Submit
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => reset()}
+            isDisabled={isSubmitting}
+          >
+            Reset
+          </Button>
+        </ButtonGroup>
+      </form>
+    </Box>
   )
 };
 
-export default function FormUserPage() {
-  const [allProfiles, setProfiles] = useState([]);
-
-  return (
-    <FormUser/>
-  );
-}
+export default FormApp;
