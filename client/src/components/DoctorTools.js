@@ -410,8 +410,6 @@ export const EditDrawer = (props) => {
   useEffect(async () => {
     if (active){
       console.log('retrieve EHRs of patient')
-      // const [permRead, permWrite] = await contract.getPermissions(address, account);
-      // setAddRights(permWrite);
       const structure = getEHRsPatients(address);
       displayEHR(structure);
     }

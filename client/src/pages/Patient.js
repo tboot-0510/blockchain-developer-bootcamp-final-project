@@ -306,7 +306,7 @@ const InfoPanel = (props) => {
   const [lock, setLock] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const toast = useToast();
-  // const [disableView, setDisableView] = useState(true);
+  const [updateView, setUpdateView] = useState(false);
 
   const [placeholderDOB, setplaceholderDOB] = useState("01/01/2000");
   const [placeholderPolicy, setplaceholderPolicy] = useState("123456");
@@ -336,7 +336,7 @@ const InfoPanel = (props) => {
         });
       });
       await tx.wait();
-      setDisableView(false);
+      setUpdateView(true);
       console.log("✅ Tx successful");
       
     } catch (e){
@@ -423,7 +423,14 @@ const InfoPanel = (props) => {
       console.log('get ehrs');
       getEHR(contract);
     }
-  }, [active, patientInfo])
+  }, [active])
+
+  useEffect(() => {
+    if (active && account){
+      console.log('Update get ehrs');
+      getEHR(contract);
+    }
+  }, [updateView])
 
   console.log('RENDER MOUNT Patient Info Panel');
   return (

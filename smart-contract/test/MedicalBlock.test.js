@@ -111,8 +111,8 @@ describe("MedicalBlock contract", function () {
         .to.emit(contract, 'AccessGranted')
         .withArgs(patientA.address, doctorA.address);
       var perm = await contract.getPermissions(patientA.address, doctorA.address);
-      expect(perm.read).to.equal(true);
-      expect(perm.write).to.equal(true);
+      expect(perm.read).to.equal(1);
+      expect(perm.write).to.equal(1);
     });
     /**
      * Checks that DoctorA grants patientA READ access to DoctorB
@@ -123,8 +123,8 @@ describe("MedicalBlock contract", function () {
         .to.emit(contract, 'AccessGranted')
         .withArgs(doctorA.address, doctorB.address);
       var perm = await contract.getPermissions(patientA.address, doctorB.address);
-        expect(perm.read).to.equal(true);
-        expect(perm.write).to.equal(false);
+        expect(perm.read).to.equal(1);
+        expect(perm.write).to.equal(0);
     });
     /**
      * Checks that PatientA revokes access to DoctorB
@@ -134,8 +134,8 @@ describe("MedicalBlock contract", function () {
         .to.emit(contract, 'AccessRevoked')
         .withArgs(patientA.address, doctorB.address);
       var perm = await contract.getPermissions(patientA.address, doctorB.address);
-      expect(perm.read).to.equal(false);
-      expect(perm.write).to.equal(false);
+      expect(perm.read).to.equal(0);
+      expect(perm.write).to.equal(0);
     });
     /**
      * Checks that PatientA revokes access to DoctorA
@@ -145,8 +145,8 @@ describe("MedicalBlock contract", function () {
         .to.emit(contract, 'AccessRevoked')
         .withArgs(patientA.address, doctorA.address);
       var perm = await contract.getPermissions(patientA.address, doctorA.address);
-      expect(perm.read).to.equal(false);
-      expect(perm.write).to.equal(false);
+      expect(perm.read).to.equal(0);
+      expect(perm.write).to.equal(0);
     });
     /**
      * Checks that PatientB grants access to DoctorA
@@ -157,8 +157,8 @@ describe("MedicalBlock contract", function () {
         .to.emit(contract, 'AccessGranted')
         .withArgs(patientB.address, doctorA.address);
       var perm = await contract.getPermissions(patientB.address, doctorA.address);
-      expect(perm.read).to.equal(true);
-      expect(perm.write).to.equal(true);
+      expect(perm.read).to.equal(1);
+      expect(perm.write).to.equal(1);
     });
   });
 
