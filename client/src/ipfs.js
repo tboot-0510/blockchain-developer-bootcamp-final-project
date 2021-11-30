@@ -20,8 +20,8 @@ import {create as ipfsHttpClient} from "ipfs-http-client";
 //   });
 
 
-const ipfsClient = ipfsHttpClient('/ip4/127.0.0.1/tcp/5001');
-// const ipfsClient = ipfsHttpClient();
+// const ipfsClient = ipfsHttpClient('/ip4/127.0.0.1/tcp/5001');
+const ipfsClient = ipfsHttpClient('https://ipfs.io/ipfs/');
 console.log('config', ipfsClient.getEndpointConfig());
 ipfsClient.id(async function (err, res) {
   if (err) throw err;
