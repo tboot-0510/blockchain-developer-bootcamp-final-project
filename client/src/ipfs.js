@@ -1,27 +1,14 @@
 import {create as ipfsHttpClient} from "ipfs-http-client";
-// const projectId = "21Gikf1QWlFSPhZzRIPW1crvD54";
-// const projectSecret = "3226db806aec17160dc8ed85214d24e1"
-// const auth =
-//   'Basic ' + Buffer.from(projectId + ':' + projectSecret).toString('base64')
+export const IPFS_GATEWAY = 'ipfs.infura.io';
 
-// const ipfsClient = ipfsHttpClient(
-//   {host: 'ipfs.infura.io', 
-//   port: '5001', 
-//   protocol: 'https',
-//   headers: {
-//     authorization: auth
-//   }});
-
-// const ipfsClient = ipfsHttpClient(
-//   {host: 'ipfs.infura.io', 
-//   port: '5001', 
-//   protocol: 'https',
-//   apiPath: '/api/v0',
-//   });
+const ipfsClient = ipfsHttpClient(
+  {host: IPFS_GATEWAY, 
+  port: '5001', 
+  protocol: 'https'
+  });
 
 
 // const ipfsClient = ipfsHttpClient('/ip4/127.0.0.1/tcp/5001');
-const ipfsClient = ipfsHttpClient('https://ipfs.io/ipfs/');
 console.log('config', ipfsClient.getEndpointConfig());
 ipfsClient.id(async function (err, res) {
   if (err) throw err;

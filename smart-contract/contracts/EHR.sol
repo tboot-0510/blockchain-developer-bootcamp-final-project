@@ -12,6 +12,7 @@ contract EHRContract {
   struct EHR {
     uint16 assetKey;
     bytes32 EHRhash;
+    bytes32 Filehash;
     address issuer;
     uint256 date;
   }

@@ -123,8 +123,8 @@ describe("MedicalBlock contract", function () {
         .to.emit(contract, 'AccessGranted')
         .withArgs(doctorA.address, doctorB.address);
       var perm = await contract.getPermissions(patientA.address, doctorB.address);
-        expect(perm.read).to.equal(1);
-        expect(perm.write).to.equal(0);
+      expect(perm.read).to.equal(1);
+      expect(perm.write).to.equal(0);
     });
     /**
      * Checks that PatientA revokes access to DoctorB
@@ -178,7 +178,8 @@ describe("MedicalBlock contract", function () {
      */
     it("Permissioned doctor can update patient's EHR", async () => {
       const EHRhash = ethers.utils.id("this is an update"); 
-      await expect(contract.connect(doctorA).updateEHR(patientB.address, EHRhash))
+      const Filehash = ethers.utils.id("file update");
+      await expect(contract.connect(doctorA).updateEHR(patientB.address, EHRhash, Filehash))
         .to.emit(contract, 'UpdatedEHR')
         .withArgs(patientB.address, doctorA.address, EHRhash);
     });
@@ -187,7 +188,8 @@ describe("MedicalBlock contract", function () {
      */
     it("Permissoned doctor can get all records of patient", async () => {
       const EHRhash = ethers.utils.id("new update");
-      await contract.connect(doctorA).updateEHR(patientB.address, EHRhash);
+      const Filehash = ethers.utils.id("file update");
+      await contract.connect(doctorA).updateEHR(patientB.address, EHRhash, Filehash);
       const records = await contract.connect(doctorA).getRecords(patientB.address);
       expect(records._accessKeys.length).to.equal(3);
     })

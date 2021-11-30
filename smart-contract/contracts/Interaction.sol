@@ -111,19 +111,19 @@ contract Interaction is EHRContract {
   /// @param EHRhash Hash value of the EHR 
   function createDefaultEHR(bytes32 EHRhash) public onlyPatients{
     require(seePatientExists(msg.sender), "Patient doesn't exist");
-    patients[msg.sender].EHRFiles.push(EHR(1, EHRhash, msg.sender, block.timestamp));
+    patients[msg.sender].EHRFiles.push(EHR(1, EHRhash, "", msg.sender, block.timestamp));
     emit CreateEHR(msg.sender);
   }
 
   /// @notice Doctor updates the patient's EHR 
   /// @param _patientAddress address of the patient 
   /// @param EHRhash Hash value of the EHR  
-  function updateEHR(address _patientAddress, bytes32 EHRhash) public onlyProviders{
+  function updateEHR(address _patientAddress, bytes32 EHRhash, bytes32 Filehash) public onlyProviders{
     require(seePatientExists(_patientAddress), "Patient doesn't exist");
     require(permissions[_patientAddress][msg.sender].write == 1, "Doctor has no update rights");
     uint16 last_idx = patients[_patientAddress].EHRFiles[patients[_patientAddress].EHRFiles.length-1].assetKey;
     last_idx++;
-    patients[_patientAddress].EHRFiles.push(EHR(last_idx,EHRhash, msg.sender, block.timestamp));
+    patients[_patientAddress].EHRFiles.push(EHR(last_idx, EHRhash, Filehash, msg.sender, block.timestamp));
     emit UpdatedEHR(_patientAddress, msg.sender, EHRhash);
   }
 

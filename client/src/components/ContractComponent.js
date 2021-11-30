@@ -1,17 +1,13 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import ConnectButton from "../components/ConnectButton";
 import AccountModal from '../components/AccountModal';
-import { CONTRACT_ADDRESS, RINKEBY_LINK, ChainId, DEFAULT_SUPPORTED_CHAINS} from '../constant';
-import {ChevronDownIcon, NotAllowedIcon, CheckIcon} from '@chakra-ui/icons'
-import { injected } from '../connectors';
-import {useAppContext} from '../AppContext';
+import {RINKEBY_LINK} from '../constant';
+import {NotAllowedIcon, CheckIcon} from '@chakra-ui/icons'
 import { useWeb3React } from '@web3-react/core';
 import {
   Box,
-  Flex,
   Alert, 
   AlertIcon,
-  Button,
   AlertTitle, 
   Heading, 
   Text, 
@@ -19,132 +15,13 @@ import {
   HStack,
   Circle,
   useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Divider,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
-  MenuItemOption,
-  MenuGroup,
-  MenuOptionGroup,
-  MenuIcon,
-  MenuCommand,
-  MenuDivider,
 } from '@chakra-ui/react';
-
-const NetworkSelection = () => {
-  const {chainId} = useWeb3React();
-  console.log(chainId, typeof chainId);
-  const { errorNetwork, setErrorNetwork } = useAppContext();
-  const [changingNetwork, setChangingNetwork] = useState(false);
-
-  const {isOpen, onOpen, onClose} = useDisclosure({
-    isOpen:
-      typeof errorNetwork !== ""
-  })
-
-  const changeNetwork = async (chainId) => {
-    if (typeof window === "undefined" || typeof window.ethereum === "undefined")
-      return;
-      setChangingNetwork(true);
-    try {
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: "0x" + chainId}],
-      });
-    } catch (err) {
-      console.log("error while switching")
-    } finally {
-      setChangingNetwork(false);
-    }
-  };
-
-  const getChainName = (networkId: ChainId) => {
-    const name = DEFAULT_SUPPORTED_CHAINS.find((network) => network.chainId === networkId)?.chainName || ''
-    return name 
-  }
-  
-  return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
-        <ModalHeader>Change Network</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-          <p>We do not support this network.</p>
-        </ModalBody>
-
-        <ModalFooter>
-          <Menu>
-            <MenuButton
-              colorScheme="blue"
-              as={Button}
-              rightIcon={<ChevronDownIcon />}
-            >
-              Select Network
-            </MenuButton>
-            <MenuList>
-              {injected.supportedChainIds.map((networkId, index) => (
-                  <MenuItem
-                    key={index}
-                    onClick={() => {
-                      console.log('clicked');
-                      changeNetwork(parseInt(networkId))
-                    }
-                    }
-                  >
-                    {getChainName(parseInt(networkId))}
-                  </MenuItem>
-                ))}
-            </MenuList>
-          </Menu>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
-  );
-}
-
-// const NetworkError = () => {
-//   const { errorNetwork, setErrorNetwork } = useAppContext();
-//   useEffect(() => {
-//     if (errorNetwork) {
-//       setTimeout(() => {
-//         setContentError('');
-//       }, 5000);
-//     }
-//   }, [errorNetwork]);
-
-//   if (!errorNetwork) {
-//     return null;
-//   }
-//   return (
-//     <Flex bg={"tomato"}>
-//       <Text>{errorNetwork}</Text>
-//     </Flex>
-//   );
-// };
-
-const NotActive = () => {
-  return (
-    <Alert status="warning">
-      <AlertIcon />
-      <AlertTitle mr={2}>Connect to Rinkeby Network</AlertTitle>
-    </Alert>
-  );
-};
 
 export const ContractInfo = (props) => {
   const {isOpen, onOpen, onClose} = useDisclosure();
-  const {active, account, chainId} = useWeb3React();
+  const {active, account, chainId, library} = useWeb3React();
   const {error, verified, ...rest} = props;
-
+  
   return (
     <Box 
       m={8}
@@ -156,13 +33,10 @@ export const ContractInfo = (props) => {
       boxShadow={'2xl'}
       rounded={'md'}
     >
-      {/* {!active && !injected.supportedChainIds.includes(chainId) && <NotActive />} */}
       {!verified && error && <Alert status="warning">
               <AlertIcon />
               <AlertTitle mr={2}>{error}</AlertTitle>
             </Alert>}
-      {/* <NetworkSelection /> */}
-      {/* <NetworkError /> */}
       <Box p={4}>
         <Heading>{props.title}</Heading>
       </Box>

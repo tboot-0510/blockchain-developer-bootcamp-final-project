@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   Button,
   ButtonGroup,
@@ -41,27 +41,15 @@ import {
   AlertDialogOverlay,
   Select,
 } from "@chakra-ui/react"
-import {CheckIcon, InfoOutlineIcon, ArrowForwardIcon, AttachmentIcon, EditIcon, CopyIcon} from '@chakra-ui/icons'
+import {InfoOutlineIcon, ArrowForwardIcon, AttachmentIcon, EditIcon} from '@chakra-ui/icons'
 import { shortenAddress } from '../utils/shortenAddress';
 import { useContract } from '../hooks/useContract';
 import { CONTRACT_ADDRESS } from '../constant';
 import { useWeb3React } from '@web3-react/core';
 import abi from '../contracts/MedicalBlock.sol/MedicalBlock.json';
 import { Controller, useForm} from "react-hook-form";
-import { encryptData, decryptData, getBytes32FromIpfsHash, getIPFSHashFromBytes32, decryptEHR, getFromIPFS, addToIPFS } from "../utils/encrypt-tools";
-
-// import {initNotify} from '../hooks/useNotify';
-// const notify = initNotify();
-
-
-interface EHR {
-  hash:String,
-  details:String,
-  provider:String,
-  attachement:Boolean, 
-  date:String,
-  time:String
-}
+import {IPFS_GATEWAY} from '../ipfs';
+import { encryptData, getIPFSHashFromBytes32, getBytes32FromIpfsHash, decryptEHR, getFromIPFS, addToIPFS } from "../utils/encrypt-tools";
 
 const TableEHRRow = (props) => {
   const {index, hash, details, provider, attachement, date, time} = props;
@@ -113,6 +101,7 @@ const TableEHRRow = (props) => {
             size="sm" 
             ml={2}
             icon={<AttachmentIcon/>}
+            onClick={() => (window.open(attachement))}
             />
         ):(
           null
@@ -277,11 +266,12 @@ export const EditDrawer = (props) => {
   const {active, account} = useWeb3React();
 
   const [scrollBehavior, setScrollBehavior] = useState("inside");
-  const [allEHRs, setEHR] = useState<EHR>([]);
+  const [allEHRs, setEHR] = useState([]);
   const [report, setReport] = useState("");
-  // const [addRights, setAddRights] = useState(true);
+  const [ selectedFile, setSelectedFile ] = useState();
+  const [ isSelected, setIsSelected ] = useState(false);
+  const [ buffer, setBuffer ] = useState()
   const [ ipfsHash, setIpfsHash ] = useState();
-  const [ ipfsContents, setIpfsContents ] = useState();
   const toast = useToast();
 
   const initialRef = React.useRef();
@@ -291,28 +281,37 @@ export const EditDrawer = (props) => {
   async function onSubmit(){
     try {
       console.log("📡 sending EHR to IPFS...");
-      // Could fall back to going directly to IPFS if server is down 
       const cryptedData = encryptData(report, 'password');
-      console.log(cryptedData);
       const result = await addToIPFS(cryptedData.toString());
-      
+      var attachementBufferIPFS = "";
+      if (isSelected) {
+        const attachement = await addToIPFS(selectedFile);
+        var attachementBufferIPFS = getBytes32FromIpfsHash(attachement.path);
+        console.log('attachementBufferIPFS', attachementBufferIPFS);
+      }
       setIpfsHash();
-      setIpfsContents();
       if(result && result.path) {
           setIpfsHash(result.path)
       }
       let bufferIPFS = getBytes32FromIpfsHash(result.path);
       console.log('bufferIPFS', bufferIPFS);
+
       // Interact with contract 
-      const tx = await contract.updateEHR(address, bufferIPFS, {gasLimit:300000})
+      const tx = await contract.updateEHR(address, bufferIPFS, attachementBufferIPFS, {gasLimit:300000})
       contract.on('UpdatedEHR', (patientAddress, doctorAddress, EHRhash) => {
         console.log("✅ Event received");
+
+        let attachementCondition = (attachementBufferIPFS != "0x0000000000000000000000000000000000000000000000000000000000000000");
+        var url = null;
+        if (attachementCondition) {
+          var url = `https://${IPFS_GATEWAY}/ipfs/${result.path}`;
+        }
         setEHR(currentEHR => [ 
           {
             hash:bufferIPFS,
             details:report,
             provider:doctorProps.doctor.address,
-            attachement:false,
+            attachement:url,
             date:new Date().toLocaleDateString("en-US"),
             time:new Date().toLocaleTimeString('en-US')
           }, ...currentEHR
@@ -325,7 +324,7 @@ export const EditDrawer = (props) => {
           isClosable: true,
         });
       });
-      // notify user of transaction ongoing
+      
       // const { emitter } = notify.hash(tx.hash);
       // emitter.on("all", transaction => {
       //   return {
@@ -340,6 +339,9 @@ export const EditDrawer = (props) => {
       
     } catch (e){
       let message = e.data && e.data.message ? e.data.message : e.error && JSON.parse(JSON.stringify(e.error)).body ? JSON.parse(JSON.parse(JSON.stringify(e.error)).body).error.message : e.data ? e.data : JSON.stringify(e);
+      if(!e.error && e.message){
+        message = e.message
+      }
       toast({
         title:"EHR Not Updated!",
         description: `${JSON.parse(message).error.message}`,
@@ -351,6 +353,19 @@ export const EditDrawer = (props) => {
 
   }
 
+  function captureFiles(event){
+    event.preventDefault()
+    const file = event.target.files[0]
+    setSelectedFile(file);
+    const reader = new window.FileReader()
+    reader.readAsArrayBuffer(file)
+    reader.onloadend = () => {
+      setBuffer(Buffer(reader.result))
+      console.log("buffer: ", buffer)
+    }
+    setIsSelected(true);
+  }
+
   function handleChange(event){
     setReport(event.target.value);
   }
@@ -358,8 +373,8 @@ export const EditDrawer = (props) => {
   const getEHRsPatients = async (address) => {
     try {
       const tx = await contract.getRecords(address, {gasLimit:800000})
-      const zip = (a, b, c, d) => a.map((k, i) => [k, b[i], c[i], new Date(d[i] * 1000).toLocaleDateString("en-US"), new Date(d[i] * 1000).toLocaleTimeString('en-US')]);
-      const structure = zip(tx._accessKeys, tx._encryptHash, tx._issuers, tx._dates)
+      const zip = (a, b, c, d, e) => a.map((k, i) => [k, b[i], c[i], d[i], new Date(e[i] * 1000).toLocaleDateString("en-US"), new Date(e[i] * 1000).toLocaleTimeString('en-US')]);
+      const structure = zip(tx._accessKeys, tx._encryptHash, tx._encryptFileHash, tx._issuers, tx._dates)
       return structure;
     } catch (e){
         console.log(e);
@@ -374,6 +389,12 @@ export const EditDrawer = (props) => {
         fetchedEHR.map(async (item, index) => {
           const report =  await decryptEHR(item[1]);
           console.log(index, report);
+          let attachementCondition = (item[2] != "0x0000000000000000000000000000000000000000000000000000000000000000");
+          var url = null;
+          if (attachementCondition) {
+            let bufferHash = getIPFSHashFromBytes32(item[2]);
+            var url = `https://${IPFS_GATEWAY}/ipfs/${bufferHash}`;
+          }
           if (index === 0){
             let parsed = JSON.parse(report);
             let syntax = `DOB : ${parsed.dob}\n Insurance PolicyNumber : ${parsed.policyNumber}`;
@@ -381,10 +402,10 @@ export const EditDrawer = (props) => {
               {
                 hash:item[1],
                 details:syntax,
-                provider:item[2],
-                attachement:false,
-                date:item[3],
-                time:item[4]
+                provider:item[3],
+                attachement:url,
+                date:item[4],
+                time:item[5]
               }, ...currentEHR
             ])
           } else {
@@ -392,10 +413,10 @@ export const EditDrawer = (props) => {
               {
                 hash:item[1],
                 details:report,
-                provider:item[2],
-                attachement:false,
-                date:item[3],
-                time:item[4]
+                provider:item[3],
+                attachement:url,
+                date:item[4],
+                time:item[5]
               }, ...currentEHR
             ])
           }
@@ -511,9 +532,9 @@ export const EditDrawer = (props) => {
                     </Flex>
                     <Textarea ref={initialRef} value={report} onChange={handleChange} minH={"250px"} color="black" placeholder="Write report..." />
                     <Flex m="5" direction="row" align="center">
-                      <form onSubmit={handleSubmit((data) => alert(JSON.stringify(data)))}>
-                        <input {...register('file')} type="file" name="file" multiple/>
-                      </form>
+                      {/* <form onSubmit={handleSubmit((data) => alert(JSON.stringify(data)))}> */}
+                      <input {...register('file')} type="file" name="file" onChangeCapture={captureFiles} multiple/>
+                      {/* </form> */}
                     </Flex>
                     
                     <ButtonGroup my={5} spacing={4}>

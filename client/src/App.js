@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import { Web3ReactProvider } from '@web3-react/core';
 import { AppContextProvider } from './AppContext';
 import { ethers } from 'ethers';

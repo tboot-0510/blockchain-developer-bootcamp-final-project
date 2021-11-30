@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext, createContext, useReducer} from "react";
+import React, {useContext, createContext, useReducer} from "react";
 
 const initialContext = {
   ethBalance: '--',

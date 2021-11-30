@@ -1,5 +1,4 @@
 import React from 'react';
-// import {Container, Button} from 'react-bootstrap';
 import { useWeb3React } from '@web3-react/core';
 import useEth from '../hooks/useEth';
 import {
@@ -16,25 +15,6 @@ import {
   Text,
 } from "@chakra-ui/react";
 
-// const Balance = () => {
-//   const {account} = useWeb3React();
-//   const {fetchBalance, ethBalance} = useEth();
-
-//   useEffect(() => {
-//     if (account){
-//       fetchBalance();
-//     }
-//   }, [account]);
-
-//   return (
-//     <Container>
-//       <div>
-//         <p style={{ color: "white"}}> ETH BALANCE : {ethBalance} </p>
-//       </div>
-//     </Container>
-//   );
-// };
-
 type Props = {
   isOpen : any;
   onClose : any; 
@@ -42,7 +22,7 @@ type Props = {
 
 const AccountModal = ({isOpen, onClose}: Props) => {
   const {account, deactivate} = useWeb3React();
-  const {fetchBalance, ethBalance} = useEth();
+  const {ethBalance} = useEth();
 
   function handleDeactivateAccount(){
     deactivate();

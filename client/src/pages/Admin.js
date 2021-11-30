@@ -1,4 +1,4 @@
-import React, {useEffect, useState, ReactNode, useCallback, useMemo} from 'react';
+import React, {useEffect, useState, ReactNode, useCallback} from 'react';
 import { 
   Box, 
   Heading, 
@@ -9,7 +9,6 @@ import {
   Spacer,
   useColorModeValue,
   Circle,
-  HStack,
   Stack,
   Accordion,
   AccordionItem,
@@ -23,18 +22,12 @@ import {
   DrawerOverlay,
   DrawerContent,
   DrawerCloseButton,
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  Avatar,
   Center, 
   Wrap,
-  Link,
   useToast,
   WrapItem
 } from '@chakra-ui/react';
-import { useRouter } from '../hooks/useRouter';
-import {AddIcon, MinusIcon, NotAllowedIcon, CheckIcon} from '@chakra-ui/icons'
+import {AddIcon, MinusIcon} from '@chakra-ui/icons'
 
 import { generate } from "shortid";
 import notConnected from '../static/astronaut.png';
@@ -42,22 +35,12 @@ import { useWeb3React } from '@web3-react/core';
 import abi from '../contracts/MedicalBlock.sol/MedicalBlock.json';
 import {useContract} from '../hooks/useContract';
 import FormApp from '../components/CreateUser';
-import { shortenAddress } from '../utils/shortenAddress';
 import { CONTRACT_ADDRESS } from '../constant';
 import useVerifyAccount from '../hooks/useVerifyAccount';
-import {useAppContext} from '../AppContext';
 
 import {Header} from '../components/Header';
 import {ContractInfo} from '../components/ContractComponent';
 import { ProfileTab } from '../components/Profiles';
-import { useParams, useLocation } from 'react-router-dom';
-
-interface User {
-  id: String;
-  name: String;
-  role: String;
-  address: String;
-}
 
 type Props = {
   children?: ReactNode;
@@ -90,7 +73,6 @@ const FunctionPanel = (props) => {
   const [allProfiles, setProfiles] = useState([]);
 
   const onSubmit = async (values) => {
-    // extract data from form 
     setFormData(values);
     try {
       if (values.role === "doctor"){
@@ -159,7 +141,6 @@ const FunctionPanel = (props) => {
       });
     }
   };
-
   const addProfile = (data) => {
     try {
       data.map((item, index) => (
@@ -167,7 +148,7 @@ const FunctionPanel = (props) => {
     }catch (e){
       console.log(e)
     }
-  }
+  };
   const getNetwork = async (contract) => {
     try {
       var network = await contract.getNetwork();
@@ -198,7 +179,7 @@ const FunctionPanel = (props) => {
     } catch (e){
       console.log('error', e);
     }
-  }
+  };
 
   const deleteFn = async (address) => {
     setDeleted(address);
@@ -238,7 +219,6 @@ const FunctionPanel = (props) => {
       addProfile(allProfiles);
     }
   }, [active])
-
 
   return (
     <Box 
@@ -355,9 +335,6 @@ const Admin = () => {
   const {verified, verifyAccount, error} = useVerifyAccount(contract, account, "admin");
   const [owner, setOwner] = useState();
 
-  const router = useRouter();
-  console.log(router);
-
   const getOwner = useCallback(async (contract) => {
     try {
       const owner = await contract.owner();
@@ -365,19 +342,19 @@ const Admin = () => {
     } catch (e) {
       console.log('error', e);
     }
-  })
+  });
 
 
   useEffect(() => {
-    console.log("On Admin : useEffect basics")
+    console.log(active)
     if (active){
       console.log('Getting owner | Verify Account | Getting network ..');
-      getOwner(contract);
       verifyAccount(contract, account, "admin");
+      getOwner(contract);
+      console.log(active)
     }
   }, [active]);
   
-  console.log("rendering Admin Component");
   return (
     <>
       <Header subtitle="Admin"/>

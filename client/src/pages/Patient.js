@@ -1,4 +1,4 @@
-import React, {useEffect, useState, ReactNode, useCallback, useMemo} from 'react';
+import React, {useEffect, useState, useCallback, ReactNode} from 'react';
 import { 
   Box, 
   Heading, 
@@ -10,12 +10,9 @@ import {
   Circle,
   HStack,
   VStack,
-  Stack,
   IconButton,
   useDisclosure,
   Collapse,
-  Switch,
-  Lorem,
   Drawer,
   DrawerBody,
   DrawerFooter,
@@ -25,15 +22,10 @@ import {
   DrawerCloseButton,
   Grid, 
   GridItem,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
   Alert,
   AlertIcon,
   AlertTitle,
   Spacer,
-  Avatar,
   Link,
   Center,
   Tooltip,
@@ -66,33 +58,13 @@ import { shortenAddress } from '../utils/shortenAddress';
 import { CONTRACT_ADDRESS, RINKEBY_LINK } from '../constant';
 import useVerifyAccount from '../hooks/useVerifyAccount';
 import Identicon from "../components/IdentityIcon";
-import {ethers} from 'ethers';
 import { Controller, useForm } from "react-hook-form";
+import {IPFS_GATEWAY} from '../ipfs';
 
 import {useAppContext} from '../AppContext';
-import { encryptData, decryptData, getBytes32FromIpfsHash, getIPFSHashFromBytes32, decryptEHR, addToIPFS } from "../utils/encrypt-tools";
+import { encryptData, getIPFSHashFromBytes32, getBytes32FromIpfsHash, decryptEHR, addToIPFS } from "../utils/encrypt-tools";
 import {Header} from '../components/Header';
 
-// const notify = useNotify();
-
-
-interface User {
-  id: String;
-  name: String;
-  role: String;
-  address: String;
-  statusR: Boolean;
-  statusW: Boolean;
-  date: String;
-}
-
-interface EHR {
-  details:String,
-  provider:String,
-  attachement:Boolean, 
-  date:String,
-  time:String
-}
 
 type Props = {
   children?: ReactNode;
@@ -112,8 +84,8 @@ function Layout({ children }: Props) {
 }
 
 const EHRPatientView = (props) => {
-  const {index, details, provider, attachement, date, time} = props;
-  const {isOpen, onOpen, onToggle, onClose} = useDisclosure();
+  const {details, provider, attachement, date, time} = props;
+  const {isOpen, onToggle} = useDisclosure();
   const [checked, setChecked] = useState(false);
 
   return (
@@ -146,6 +118,7 @@ const EHRPatientView = (props) => {
             size="sm" 
             ml={2}
             icon={<AttachmentIcon/>}
+            onClick={() => window.open(attachement)}
             />
         ):(
           null
@@ -215,7 +188,7 @@ const EHRPatientTable = (props) => {
 
 const ContractInfo = (props) => {
   const {isOpen, onOpen, onClose} = useDisclosure();
-  const {active, account} = useWeb3React();
+  const {account} = useWeb3React();
   const {error, verified, ...rest} = props;
 
   return (
@@ -297,7 +270,7 @@ const InfoPanel = (props) => {
   const {active, account} = useWeb3React();
   const {verified, ...InfoProps} = props;
   const {onOpen:onDrawerOpen, isOpen:isDrawerOpen, onClose:onDrawerClose} = useDisclosure();
-  const {onOpen:onEHROpen, isOpen:isEHROpen, onToggle:onEHRToggle, onClose:onEHRClose} = useDisclosure();
+  const {isOpen:isEHROpen, onToggle:onEHRToggle} = useDisclosure();
   const contract = useContract(CONTRACT_ADDRESS, abi.abi);
   const { register, handleSubmit, control} = useForm();
   
@@ -358,18 +331,24 @@ const InfoPanel = (props) => {
 
   const handleLocking = () => {
     setLock(!lock);
-    
   };
 
   const getEHR = async (contract) => {
     try {
       const tx = await contract.getOwnRecords();
-      const zip = (a, b, c, d) => a.map((k, i) => [k, b[i], c[i], new Date(d[i] * 1000).toLocaleDateString("en-US"), new Date(d[i] * 1000).toLocaleTimeString('en-US')]);
-      const structure = zip(tx._accessKeys, tx._encryptHash, tx._issuers, tx._dates)
+      const zip = (a, b, c, d, e) => a.map((k, i) => [k, b[i], c[i], d[i], new Date(e[i] * 1000).toLocaleDateString("en-US"), new Date(e[i] * 1000).toLocaleTimeString('en-US')]);
+      const structure = zip(tx._accessKeys, tx._encryptHash, tx._encryptFileHash, tx._issuers, tx._dates)
       const fetchedEHR = await structure;
       await Promise.all(
         fetchedEHR.map(async (item, index) => {
           const report =  await decryptEHR(item[1]);
+          
+          let attachementCondition = (item[2] != "0x0000000000000000000000000000000000000000000000000000000000000000");
+          var url = null;
+          if (attachementCondition) {
+            let bufferHash = getIPFSHashFromBytes32(item[2]);
+            var url = `https://${IPFS_GATEWAY}/ipfs/${bufferHash}`;
+          }
           if (index === 0){
             let parsed = JSON.parse(report);
             let syntax = `DOB : ${parsed.dob}\n Insurance PolicyNumber : ${parsed.policyNumber}`;
@@ -377,10 +356,10 @@ const InfoPanel = (props) => {
               {
                 hash:item[1],
                 details:syntax,
-                provider:item[2],
-                attachement:false,
-                date:item[3],
-                time:item[4]
+                provider:item[3],
+                attachement:url,
+                date:item[4],
+                time:item[5]
               }, ...currentEHR
             ])
           } else {
@@ -388,10 +367,10 @@ const InfoPanel = (props) => {
               {
                 hash:item[1],
                 details:report,
-                provider:item[2],
-                attachement:false,
-                date:item[3],
-                time:item[4]
+                provider:item[3],
+                attachement:url,
+                date:item[4],
+                time:item[5]
               }, ...currentEHR
             ])
           }
@@ -399,7 +378,6 @@ const InfoPanel = (props) => {
       
       if (fetchedEHR.length >= 1){
         const genesisEHRDetails = JSON.parse(await decryptEHR(fetchedEHR[0][1]));
-        console.log('here', genesisEHRDetails);
         setplaceholderDOB(genesisEHRDetails.dob);
         setplaceholderPolicy(genesisEHRDetails.policyNumber);
       }
@@ -424,16 +402,9 @@ const InfoPanel = (props) => {
       console.log('get ehrs');
       getEHR(contract);
     }
-  }, [active])
+    
+  }, [active, updateView])
 
-  useEffect(() => {
-    if (active && account){
-      console.log('Update get ehrs');
-      getEHR(contract);
-    }
-  }, [updateView])
-
-  console.log('RENDER MOUNT Patient Info Panel');
   return (
     <Box 
       m={8}
@@ -620,7 +591,6 @@ const Tables = (props) => {
 const FunctionPanel = (props) => {
   const {active, account} = useWeb3React();
   const {verified, participants, ...rest} = props;
-  
 
   return (
     <Box 
@@ -692,7 +662,7 @@ const Patient = () => {
     }
   }
 
-  const getAllDoctors = async (contract) => {
+  const getAllDoctors = useCallback(async (contract) => {
     try {
       var network = await contract.getDoctorList();
       console.log(network);
@@ -715,7 +685,7 @@ const Patient = () => {
     } catch (error){
       console.log(error);
     }
-  };
+  });
 
   useEffect(() => {
     if (active){
@@ -724,7 +694,6 @@ const Patient = () => {
       verifyAccount(contract, account, "patient");
       getInfo(contract);
       getAllDoctors(contract);
-      // getEHR(contract);
     }
   }, [active]);
 
@@ -732,9 +701,6 @@ const Patient = () => {
     title : "My Info",
     patient : {
       name: patientName,
-      // insuranceSwitch : checked,
-      // dobPlaceholder : placeholderDOB,
-      // policyPlaceholder : placeholderPolicy
     },
   }
 

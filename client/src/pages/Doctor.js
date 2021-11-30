@@ -28,17 +28,6 @@ import {useAppContext} from '../AppContext';
 import {Header} from '../components/Header';
 import {ContractInfo} from '../components/ContractComponent';
 
-
-interface User {
-  id: String;
-  name: String;
-  role: String;
-  address: String;
-  statusR: Boolean;
-  statusW: Boolean;
-  date: String;
-}
-
 type Props = {
   children?: ReactNode;
 };
@@ -58,7 +47,7 @@ function Layout({ children }: Props) {
 
 const InfoPanel = (props) => {
   const {active, account} = useWeb3React();
-  const {logo, verified, ...rest} = props;
+  const {verified, ...doctorProps} = props;
 
   return (
     <Box 
@@ -75,10 +64,10 @@ const InfoPanel = (props) => {
         {account && active && verified ? (
           <Flex direction="row" alignItems="center">
             <Identicon account={account} size={50}/>
-            <Heading mx={4} size="lg">{props.name}</Heading>
+            <Heading mx={4} size="lg">{doctorProps.doctor.name}</Heading>
           </Flex>
         ):(
-          <Heading>{props.title}</Heading>
+          <Heading>{doctorProps.title}</Heading>
         )}
       </Box>
     </Box>
@@ -227,7 +216,6 @@ const Doctor = () => {
 
   useEffect(() => {
     if (active){
-      console.log('Getting owner | Verify Account | Getting network ..');
       getOwner(contract);
       verifyAccount(contract, account, "doctor");
       getInfo(contract);
@@ -238,8 +226,8 @@ const Doctor = () => {
 
 
   const doctorProps = {
+    title : "My Info",
     doctor : {
-      verified:verified,
       name: doctorName,
       address: account
     },
@@ -253,10 +241,10 @@ const Doctor = () => {
       <Header subtitle="Doctor"/>
       <Layout>
         <VStack >
-          <InfoPanel verified={doctorProps.doctor.verified} title="My Info" name={doctorProps.doctor.name} verified={doctorProps.doctor.verified}/>
+          <InfoPanel verified={verified} {...doctorProps}/>
           <ContractInfo error={error} verified={verified} title="Contract Details" address={contract.address} owner={owner}/>
         </VStack>
-        <FunctionPanel verified={doctorProps.doctor.verified} participants={allPatients} doctorProps={doctorProps}/>
+        <FunctionPanel verified={verified} participants={allPatients} doctorProps={doctorProps}/>
       </Layout>
     </>
     

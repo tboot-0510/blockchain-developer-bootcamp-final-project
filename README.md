@@ -9,7 +9,7 @@ Thomas Boot
 `0x8b22897ABc3f204263c9eB76Dc166F52e2F01b40`
 
 **Screencast of the deployed website**
-
+`https://www.loom.com/share/451c5e2e5beb4f58a333015e84501487`
 
 
 ## MedLink - Scope of the project 
@@ -28,7 +28,7 @@ Transactions are only visible between active participants associated with the pr
 7. Logout or open another browser and connect to the Doctor page with the doctor account. The user will have access to the network of patients and see which patients have granted him access. 
 8. After checking the permission to read/edit between the patients and the doctor, the ones that granted access will show 3 separate options where the doctor can interact with the smart contract. 
    1. Read the patient's EHR data : First Name, Last Name, Ethereum address, DOB, Insurance number. (This section can be further detailed with more information : blood type, etc)
-   2. Update the patient's EHR by writing and committing a new medical record to the blockchain. The content of the report is encrypted and stored with IPFS. Patient/Doctor that share the same password can decrypt the content of the EHR. 
+   2. Update the patient's EHR by writing and committing a new medical record to the blockchain. The content of the report is encrypted and stored with IPFS. The Doctor can add files to the EHR. Patient/Doctor that share the same password can decrypt the content of the EHR. 
    3. If needed, the doctor can transfer READ access of a patient EHR to another doctor on the network. 
 9. Switching back to the patient's portal, the patient can access to it's updated EHR, with the decrypted content, address of the provider, date and time of the EHR creation. 
 
@@ -55,8 +55,8 @@ The worflow for encryption is as follow :
 2. For instance, when DoctorA grants READ access to patientA to DoctorB, DoctorB can only read content of EHR and not update the medical file. It would need updated permission from patientA to enable DoctorB to update the file.
 
 ### Non implemented functions
-1. Able to add files to medical report and update it to IPFS. Front end function visible but not dealt with. 
-2. Patient sets password to encrypt his data and doctor should type in password to decrypt the data.  
+1. Patient sets password to encrypt his data and doctor should type in password to decrypt the data. 
+2. Encrypt the uploaded files by the doctor (i.e. PDF, images...) 
 
 ### Further ideas
 
@@ -88,6 +88,6 @@ The worflow for encryption is as follow :
 3. Open `localhost:3000`
 
 ## Deployed webiste URL 
-`website.com` 
+`https://medlink-app-tboot-0510.vercel.app/` 
 To interact on publically deployed website, please email me to `tboot@hawk.iit.edu` doctor and patient metamask account so that I can add them. 
 Or deploy locally and interact with it on your own.

@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = '0xe1F85Ba0fD970343e52fB1dEEBae880C90205219';
+export const CONTRACT_ADDRESS = '0x2BAB1A70C7ad556260b36Ef974cCa2AD2A91446a';
 export const RINKEBY_LINK = `https://rinkeby.etherscan.io/address/${CONTRACT_ADDRESS}`;
 
 export const ChainId = {

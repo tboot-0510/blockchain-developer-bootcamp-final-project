@@ -239,8 +239,8 @@ const TablesTableRow = (props) => {
   const { logo, name, address, statusR, statusW, date, type, doctorProps} = props;
   const {hasCopied, onCopy} = useClipboard(address);
   const textColor = useColorModeValue("gray.700", "white");
-  const [currentStatusR, setCurrentStatusR] = useState(statusR);
-  const [currentStatusW, setCurrentStatusW] = useState(statusW);
+  const [currentStatusR, setCurrentStatusR] = useState(!!statusR);
+  const [currentStatusW, setCurrentStatusW] = useState(!!statusW);
 
   const callbackRevokeFn = status => {
     setCurrentStatusR(status);
@@ -260,8 +260,8 @@ const TablesTableRow = (props) => {
   }
 
   const statusProps = {
-    statusR: statusR,
-    statusW: statusW,
+    statusR: currentStatusR,
+    statusW: currentStatusW,
   }
 
   function SwitchCase(props) {
@@ -274,7 +274,7 @@ const TablesTableRow = (props) => {
         null();
     }
   }
-  console.log('RENDERING TABLESPERROW,', currentStatusR, currentStatusW);
+  
   return (
     <Tr>
       <Td minWidth={{ sm: "250px" }} pl="0px">

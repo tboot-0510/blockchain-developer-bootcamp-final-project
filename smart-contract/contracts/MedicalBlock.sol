@@ -176,7 +176,7 @@ contract MedicalBlock is Ownable, Interaction, IMedicalBlock {
 
   /// @notice Get the medical records of the patient from a doctor's perspective
   /// @param _patientAddress address of the patient
-  function getRecords(address _patientAddress) public view override onlyProviders returns (uint16[] memory _accessKeys, bytes32[] memory _encryptHash ,address[] memory _issuers ,uint256[] memory _dates){
+  function getRecords(address _patientAddress) public view override onlyProviders returns (uint16[] memory _accessKeys, bytes32[] memory _encryptHash, bytes32[] memory _encryptFileHash ,address[] memory _issuers ,uint256[] memory _dates){
     require(permissions[_patientAddress][msg.sender].read == 1, "Doctor has no update rights");
     require(patients[_patientAddress].EHRFiles.length>0, "Patient has no EHR record");
     return _retrieveRecords(_patientAddress);
@@ -185,34 +185,36 @@ contract MedicalBlock is Ownable, Interaction, IMedicalBlock {
   /// @notice Core function to retrieve records 
   /// @param _passedAddress address given to the function 
   /// @dev Use ternary condition to designate the used address 
-  function _retrieveRecords(address _passedAddress) public view override returns (uint16[] memory _accessKeys, bytes32[] memory _encryptHash ,address[] memory _issuers ,uint256[] memory _dates){
+  function _retrieveRecords(address _passedAddress) public view override returns (uint16[] memory _accessKeys, bytes32[] memory _encryptHash, bytes32[] memory _encryptFileHash ,address[] memory _issuers ,uint256[] memory _dates){
 
     address condition = (_passedAddress == address(0)) ? (msg.sender) : (_passedAddress); 
     
     uint length = patients[condition].EHRFiles.length;
     uint16[] memory assetKeys = new uint16[](length);
     bytes32[] memory encryptHash = new bytes32[](length);
+    bytes32[] memory encryptFileHash = new bytes32[](length);
     address[] memory issuers = new address[](length);
     uint[] memory dates = new uint[](length);
 
     for (uint idx=0; idx<length; idx++){
-      (assetKeys[idx], encryptHash[idx], issuers[idx], dates[idx]) = getRecordIdx(condition, idx);
+      (assetKeys[idx], encryptHash[idx], encryptFileHash[idx], issuers[idx], dates[idx]) = getRecordIdx(condition, idx);
     }
-    return (assetKeys, encryptHash, issuers, dates);
+    return (assetKeys, encryptHash, encryptFileHash, issuers, dates);
   }
 
   /// @notice Fetch the patient EHR data at a specific index
   /// @param _patientAddress address of the patient
   /// @param idx index
-  function getRecordIdx(address _patientAddress, uint idx) public view override returns (uint16 accessKey, bytes32 encryptHash, address issuer, uint256 date){
+  function getRecordIdx(address _patientAddress, uint idx) public view override returns (uint16 accessKey, bytes32 encryptHash, bytes32 encryptFileHash, address issuer, uint256 date){
     return (patients[_patientAddress].EHRFiles[idx].assetKey, 
       patients[_patientAddress].EHRFiles[idx].EHRhash,
+      patients[_patientAddress].EHRFiles[idx].Filehash,
       patients[_patientAddress].EHRFiles[idx].issuer,
       patients[_patientAddress].EHRFiles[idx].date);
   }
 
   /// @notice Get the medical records of the patient
-  function getOwnRecords() public view override onlyPatients returns (uint16[] memory _accessKeys, bytes32[] memory _encryptHash ,address[] memory _issuers ,uint256[] memory _dates){
+  function getOwnRecords() public view override onlyPatients returns (uint16[] memory _accessKeys, bytes32[] memory _encryptHash, bytes32[] memory _encryptFileHash ,address[] memory _issuers ,uint256[] memory _dates){
     require(patients[msg.sender].EHRFiles.length>0, "Patient has no EHR record");
     return _retrieveRecords(msg.sender);
   }

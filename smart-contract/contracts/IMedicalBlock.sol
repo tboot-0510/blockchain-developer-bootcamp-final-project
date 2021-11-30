@@ -36,13 +36,13 @@ interface IMedicalBlock {
 
   function getDoctorInfo(address _providerAddress) external view returns (address _address, string memory name, uint256 date);
 
-  function getRecords(address _patientAddress) external view returns (uint16[] memory _accessKeys, bytes32[] memory _encryptHash ,address[] memory _issuers ,uint256[] memory _dates);
+  function getRecords(address _patientAddress) external view returns (uint16[] memory _accessKeys, bytes32[] memory _encryptHash , bytes32[] memory _encryptFileHash, address[] memory _issuers ,uint256[] memory _dates);
 
-  function getOwnRecords() external view returns (uint16[] memory _accessKeys, bytes32[] memory _encryptHash ,address[] memory _issuers ,uint256[] memory _dates);
+  function getOwnRecords() external view returns (uint16[] memory _accessKeys, bytes32[] memory _encryptHash , bytes32[] memory _encryptFileHash , address[] memory _issuers ,uint256[] memory _dates);
 
-  function getRecordIdx(address _patientAddress, uint idx) external view returns (uint16 accessKey, bytes32 encryptHash, address issuer, uint256 date);
+  function getRecordIdx(address _patientAddress, uint idx) external view returns (uint16 accessKey, bytes32 encryptHash, bytes32 encryptFileHash, address issuer, uint256 date);
 
-  function _retrieveRecords(address _passedAddress) external view returns (uint16[] memory _accessKeys, bytes32[] memory _encryptHash ,address[] memory _issuers ,uint256[] memory _dates);
+  function _retrieveRecords(address _passedAddress) external view returns (uint16[] memory _accessKeys, bytes32[] memory _encryptHash , bytes32[] memory _encryptFileHash ,address[] memory _issuers ,uint256[] memory _dates);
 
   function getNetwork() external view returns (address[] memory);
 

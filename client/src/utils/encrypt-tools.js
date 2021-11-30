@@ -41,8 +41,6 @@ export const decryptEHR = async(bufferIPFS) => {
 
 export const addToIPFS = async(fileToUpload) => {
   const result = await ipfsClient.add(fileToUpload);
-  const url = `https://ipfs.infura.io/ipfs/${result.path}`;
-  console.log('IPFS path', url);
   return result
 }
 
@@ -50,7 +48,6 @@ const asyncGetFile = async (ipfsHash) => {
   let result = await getFromIPFS(ipfsHash);
   return result;
 }
-
 
 export const getFromIPFS = async hashToGet => {
 
