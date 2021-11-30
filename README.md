@@ -71,21 +71,24 @@ The worflow for encryption is as follow :
 ## How to run code locally 
 ### Prerequisites
 - Node.js >= v16.9.1
-- Yarn
-- Metamask: ``npm i -g @metamask/detect-provider``
+- `npm instqll --global yarn`
+- Metamask: `npm i -g @metamask/detect-provider` and `metamask.io/download.html`.
+- `npm install --save-dev hardhat`
 
 **Smart Contract : Deployment and testing** 
 1. Clone the project to desired folder :
 `git clone https://github.com/tboot-0510/blockchain-developer-bootcamp-final-project.git`
-2. Go to `smart contract` and run `yarn install` to build smart contract dependencies.
-3. Run `npx hardhat test` to run smart contract tests.
-4. Before deploying script, in `scripts/deploy.js` change line 23 to your metamask account that would refer to your admin.
-5. RUn `npx hardhat run scripts/deploy.js --network rinkeby` to deploy locally.
+2. Go to `smart contract`, run  `npm install --save-dev hardhat` and after `yarn install` to build smart contract dependencies.
+3. Create `.env` file in root of the project folder and fill in parameters of `hardhat.config.js` line 29 & 30 `url: process.env.STAGING_ALCHEMY_KEY` & `accounts: [process.env.PRIVATE_KEY]`.
+4. Run `npx hardhat test` to run smart contract tests.
+5. Before deploying script, in `scripts/deploy.js` change line 23 to your metamask account that would refer to your admin.
+6. Run `npx hardhat run scripts/deploy.js --network rinkeby` to deploy locally.
 
 **Front-end : Deployment and testing**
 1. Go to `client` and run `yarn install` to build front end dependencies. 
-2. Run `npm start` in a terminal window.
-3. Open `localhost:3000`
+2. Run `yarn add @babel/plugin-syntax-bigint --dev` -> Ran into a `ReferenceError: Can't find variable: BigInt` in Safari. Test worked in Chrome.
+3. Run `npm start` in a terminal window.
+4. Open `localhost:3000`
 
 ## Deployed webiste URL 
 `https://medlink-app-tboot-0510.vercel.app/` 
