@@ -196,12 +196,19 @@ contract MedicalBlock is Ownable, Interaction, IMedicalBlock {
     uint[] memory dates = new uint[](length);
 
     for (uint idx=0; idx<length; idx++){
-      (assetKeys[idx], encryptHash[idx], issuers[idx], dates[idx]) = (patients[condition].EHRFiles[idx].assetKey, 
-                                                              patients[condition].EHRFiles[idx].EHRhash,
-                                                              patients[condition].EHRFiles[idx].issuer,
-                                                              patients[condition].EHRFiles[idx].date);
+      (assetKeys[idx], encryptHash[idx], issuers[idx], dates[idx]) = getRecordIdx(condition, idx);
     }
     return (assetKeys, encryptHash, issuers, dates);
+  }
+
+  /// @notice Fetch the patient EHR data at a specific index
+  /// @param _patientAddress address of the patient
+  /// @param idx index
+  function getRecordIdx(address _patientAddress, uint idx) public view override returns (uint16 accessKey, bytes32 encryptHash, address issuer, uint256 date){
+    return (patients[_patientAddress].EHRFiles[idx].assetKey, 
+      patients[_patientAddress].EHRFiles[idx].EHRhash,
+      patients[_patientAddress].EHRFiles[idx].issuer,
+      patients[_patientAddress].EHRFiles[idx].date);
   }
 
   /// @notice Get the medical records of the patient

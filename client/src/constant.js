@@ -1,15 +1,15 @@
-export const CONTRACT_ADDRESS = '0x5c1E592A0D2646Dd66FACC0f292257a8247BeEb2';
-export const RINKEBY_LINK = `https://rinkeby.etherscan.io/address/${CONTRACT_ADDRESS}`
+export const CONTRACT_ADDRESS = '0xe1F85Ba0fD970343e52fB1dEEBae880C90205219';
+export const RINKEBY_LINK = `https://rinkeby.etherscan.io/address/${CONTRACT_ADDRESS}`;
 
-export enum ChainId {
-  Ropsten = 3,
-  Rinkeby = 4,
-  Kovan = 42,
-  Localhost = 1337,
+export const ChainId = {
+  Ropsten : 3,
+  Rinkeby : 4,
+  Kovan : 42,
+  Localhost : 1337,
 };
 
 export type Chain = {
-  chainId: number
+  chainId: number,
   chainName: string
 }
 

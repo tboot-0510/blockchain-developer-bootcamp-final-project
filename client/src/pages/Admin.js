@@ -33,12 +33,13 @@ import {
   useToast,
   WrapItem
 } from '@chakra-ui/react';
+import { useRouter } from '../hooks/useRouter';
 import {AddIcon, MinusIcon, NotAllowedIcon, CheckIcon} from '@chakra-ui/icons'
 
 import { generate } from "shortid";
 import notConnected from '../static/astronaut.png';
 import { useWeb3React } from '@web3-react/core';
-import abi from '../../../smart-contract/artifacts/contracts/MedicalBlock.sol/MedicalBlock.json';
+import abi from '../contracts/MedicalBlock.sol/MedicalBlock.json';
 import {useContract} from '../hooks/useContract';
 import FormApp from '../components/CreateUser';
 import { shortenAddress } from '../utils/shortenAddress';
@@ -49,6 +50,7 @@ import {useAppContext} from '../AppContext';
 import {Header} from '../components/Header';
 import {ContractInfo} from '../components/ContractComponent';
 import { ProfileTab } from '../components/Profiles';
+import { useParams, useLocation } from 'react-router-dom';
 
 interface User {
   id: String;
@@ -85,7 +87,7 @@ const FunctionPanel = (props) => {
 
   const [formData, setFormData] = useState();
   const [deleted, setDeleted] = useState('');
-  const [allProfiles, setProfiles] = useState<User[]>([]);
+  const [allProfiles, setProfiles] = useState([]);
 
   const onSubmit = async (values) => {
     // extract data from form 
@@ -166,7 +168,7 @@ const FunctionPanel = (props) => {
       console.log(e)
     }
   }
-  const getNetwork = useCallback(async (contract) => {
+  const getNetwork = async (contract) => {
     try {
       var network = await contract.getNetwork();
       console.log('Network', network)
@@ -196,7 +198,7 @@ const FunctionPanel = (props) => {
     } catch (e){
       console.log('error', e);
     }
-  })
+  }
 
   const deleteFn = async (address) => {
     setDeleted(address);
@@ -348,17 +350,17 @@ const FunctionPanel = (props) => {
 }
 
 const Admin = () => {
-  // const searchParams = new URLSearchParams(location.pathname);
   const contract = useContract(CONTRACT_ADDRESS, abi.abi);
   const {active, account} = useWeb3React();
   const {verified, verifyAccount, error} = useVerifyAccount(contract, account, "admin");
-
   const [owner, setOwner] = useState();
 
+  const router = useRouter();
+  console.log(router);
 
   const getOwner = useCallback(async (contract) => {
     try {
-      const owner = await contract.getOwner();
+      const owner = await contract.owner();
       setOwner(owner);
     } catch (e) {
       console.log('error', e);
@@ -374,10 +376,6 @@ const Admin = () => {
       verifyAccount(contract, account, "admin");
     }
   }, [active]);
-
-  useEffect(() => {
-    console.log("On parent mount");
-  }, []);
   
   console.log("rendering Admin Component");
   return (

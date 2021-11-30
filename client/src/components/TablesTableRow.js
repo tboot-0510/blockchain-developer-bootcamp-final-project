@@ -26,7 +26,7 @@ import Identicon from "../components/IdentityIcon";
 import React, {useState, useRef, useEffect} from 'react';
 import { useContract } from "../hooks/useContract";
 import { CONTRACT_ADDRESS } from "../constant";
-import abi from '../../../smart-contract/artifacts/contracts/MedicalBlock.sol/MedicalBlock.json';
+import abi from '../contracts/MedicalBlock.sol/MedicalBlock.json';
 import { useWeb3React } from "@web3-react/core";
 
 const PatientTools = (props) => {  
@@ -271,7 +271,7 @@ const TablesTableRow = (props) => {
       case ("patientTools"):
         return <PatientTools address={props.address} status={props.status} callbackRevokeFn={props.callbackRevokeFn} callbackGrantFn={callbackGrantFn}/>
       default :
-        null
+        null();
     }
   }
   console.log('RENDERING TABLESPERROW,', currentStatusR, currentStatusW);

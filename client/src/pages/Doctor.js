@@ -18,7 +18,7 @@ import {
 import { generate } from "shortid";
 import notConnected from '../static/astronaut.png';
 import { useWeb3React } from '@web3-react/core';
-import abi from '../../../smart-contract/artifacts/contracts/MedicalBlock.sol/MedicalBlock.json';
+import abi from '../contracts/MedicalBlock.sol/MedicalBlock.json';
 import {useContract} from '../hooks/useContract';
 import TablesTableRow from '../components/TablesTableRow';
 import { CONTRACT_ADDRESS } from '../constant';
@@ -172,13 +172,13 @@ const Doctor = () => {
   const {verified, verifyAccount, error} = useVerifyAccount(contract, account, "doctor");
   const {errorNetwork} = useAppContext();
 
-  const [participants, setParticipants] = useState<User[]>([]);
-  const [allPatients, setAvailablePatients] = useState<User[]>([]);
+  const [participants, setParticipants] = useState([]);
+  const [allPatients, setAvailablePatients] = useState([]);
   const [allDoctors, setDoctorAddr] = useState([]);
 
   const getOwner = async (contract) => {
     try {
-      const owner = await contract.getOwner();
+      const owner = await contract.owner();
       setOwner(owner);
     } catch (e) {
       console.log('error', e);

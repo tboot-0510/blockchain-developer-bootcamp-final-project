@@ -1,16 +1,10 @@
 import React, {useEffect} from 'react';
-import {useDisclosure} from "@chakra-ui/react";
-import ConnectButton from '../components/ConnectButton';
-import AccountModal from '../components/AccountModal';
-import Layout from '../components/Layout';
-// import FormUserPage from '../components/CreateUser';
 import LandingSet from '../components/LandingPage';
 import logoImg from '../static/blockchain.png';
 
 import {
   Flex,
   Center,
-  Heading,
   Text,
   Stack,
   Image

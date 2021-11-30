@@ -46,7 +46,7 @@ import { shortenAddress } from '../utils/shortenAddress';
 import { useContract } from '../hooks/useContract';
 import { CONTRACT_ADDRESS } from '../constant';
 import { useWeb3React } from '@web3-react/core';
-import abi from '../../../smart-contract/artifacts/contracts/MedicalBlock.sol/MedicalBlock.json';
+import abi from '../contracts/MedicalBlock.sol/MedicalBlock.json';
 import { Controller, useForm} from "react-hook-form";
 import { encryptData, decryptData, getBytes32FromIpfsHash, getIPFSHashFromBytes32, decryptEHR, getFromIPFS, addToIPFS } from "../utils/encrypt-tools";
 
@@ -277,7 +277,7 @@ export const EditDrawer = (props) => {
   const {active, account} = useWeb3React();
 
   const [scrollBehavior, setScrollBehavior] = useState("inside");
-  const [allEHRs, setEHR] = useState<EHR[]>([]);
+  const [allEHRs, setEHR] = useState<EHR>([]);
   const [report, setReport] = useState("");
   // const [addRights, setAddRights] = useState(true);
   const [ ipfsHash, setIpfsHash ] = useState();

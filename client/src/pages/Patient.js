@@ -59,7 +59,7 @@ import notConnected from '../static/astronaut.png';
 import ConnectButton from "../components/ConnectButton";
 import AccountModal from '../components/AccountModal';
 import { useWeb3React } from '@web3-react/core';
-import abi from '../../../smart-contract/artifacts/contracts/MedicalBlock.sol/MedicalBlock.json';
+import abi from '../contracts/MedicalBlock.sol/MedicalBlock.json';
 import {useContract} from '../hooks/useContract';
 import TablesTableRow from '../components/TablesTableRow';
 import { shortenAddress } from '../utils/shortenAddress';
@@ -157,21 +157,21 @@ const EHRPatientView = (props) => {
               size="sm" 
               ml={2}
               icon={<ArrowDownIcon/>} 
-              onClick={() => {
+              onClick={() => (
                 onToggle(),
-                setChecked(!checked);
-              }}
-              />
+                setChecked(!checked)
+              )}
+            />
           ):(
             <IconButton 
               size="sm" 
               ml={2}
               icon={<ArrowUpIcon/>} 
-              onClick={() => {
+              onClick={() => (
                 onToggle(),
-                setChecked(!checked);
-              }}
-              />
+                setChecked(!checked)
+              )}
+            />
           )}
         </Tooltip>
       </Flex>
@@ -310,7 +310,7 @@ const InfoPanel = (props) => {
 
   const [placeholderDOB, setplaceholderDOB] = useState("01/01/2000");
   const [placeholderPolicy, setplaceholderPolicy] = useState("123456");
-  const [ehrs, setEHR] = useState<EHR[]>([]);
+  const [ehrs, setEHR] = useState([]);
 
   const hoverCSS = {
     border: "1px",
@@ -338,6 +338,7 @@ const InfoPanel = (props) => {
       await tx.wait();
       setUpdateView(true);
       console.log("✅ Tx successful");
+      onDrawerOpen();
       
     } catch (e){
       console.log(e);
@@ -404,7 +405,7 @@ const InfoPanel = (props) => {
       }
 
     } catch (error) {
-      setTimeout(() => {
+      setTimeout(() => ( 
         toast({
           title:"No Genesis EHR provided!",
           description: `You need to fill in information inside personal panel`,
@@ -412,7 +413,7 @@ const InfoPanel = (props) => {
           duration: 10000,
           isClosable: true,
         })
-        , 3000})
+        , 3000))
       throw error;
     }
   };
@@ -486,21 +487,21 @@ const InfoPanel = (props) => {
                   size="sm" 
                   ml={2}
                   icon={<ArrowDownIcon/>} 
-                  onClick={() => {
+                  onClick={() => (
                     onEHRToggle(),
-                    setExpanded(!expanded);
-                  }}
+                    setExpanded(!expanded)
+                    )}
                   />
               ):(
                 <IconButton 
                   size="sm" 
                   ml={2}
                   icon={<ArrowUpIcon/>} 
-                  onClick={() => {
+                  onClick={() => (
                     onEHRToggle(),
-                    setExpanded(!expanded);
-                  }}
-                  />
+                    setExpanded(!expanded)
+                  )}
+                />
               )}
             </Tooltip>
           </Flex>
@@ -667,19 +668,15 @@ const Patient = () => {
   const {active, account, deactivate} = useWeb3React();
   const [owner, setOwner] = useState();
   const [patientName, setPatientName] = useState();
-  // const [ehr, setEHR] = useState<EHR[]>([]);
+  
   const {verified, verifyAccount, error} = useVerifyAccount(contract, account, "patient");
   const {errorNetwork} = useAppContext();
-
-  // const [checked, setChecked] = useState(false);
-  // const [placeholderDOB, setplaceholderDOB] = useState("01/01/2000");
-  // const [placeholderPolicy, setplaceholderPolicy] = useState("123456");
-  const [allDoctors, setAvailableDoctors] = useState<User[]>([]);
+  const [allDoctors, setAvailableDoctors] = useState([]);
   const toast = useToast();
 
   const getOwner = async (contract) => {
     try {
-      const owner = await contract.getOwner();
+      const owner = await contract.owner();
       setOwner(owner);
     } catch (e) {
       console.log('error', e);

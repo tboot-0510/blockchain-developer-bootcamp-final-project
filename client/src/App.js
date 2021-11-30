@@ -9,9 +9,9 @@ import Doctor from './pages/Doctor';
 import Patient from './pages/Patient';
 import './styles/App.css';
 import { ChakraProvider } from "@chakra-ui/react";
-import { createBrowserHistory, createMemoryHistory } from 'history';
+import { createBrowserHistory } from 'history';
 
-const history = createMemoryHistory();
+const history = createBrowserHistory();
 
 function getLibrary(provider){
   return new ethers.providers.Web3Provider(provider);
@@ -21,14 +21,14 @@ const App = () => {
     <ChakraProvider>
         <AppContextProvider>
           <Web3ReactProvider getLibrary={getLibrary}>
-          <Router history={history}>
+          <BrowserRouter history={history}>
             <Switch>
               <Route exact path="/" component={Home} />
               <Route path="/admin" component={Admin} />
               <Route path="/doctor" component={Doctor} />
               <Route path="/patient" component={Patient} />
             </Switch>
-          </Router>
+          </BrowserRouter>
           </Web3ReactProvider>
         </AppContextProvider>
     </ChakraProvider>

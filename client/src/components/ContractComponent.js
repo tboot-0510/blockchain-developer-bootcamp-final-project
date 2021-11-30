@@ -111,31 +111,39 @@ const NetworkSelection = () => {
   );
 }
 
-const NetworkError = () => {
-  const { errorNetwork, setErrorNetwork } = useAppContext();
-  useEffect(() => {
-    if (errorNetwork) {
-      setTimeout(() => {
-        setContentError('');
-      }, 5000);
-    }
-  }, [errorNetwork]);
+// const NetworkError = () => {
+//   const { errorNetwork, setErrorNetwork } = useAppContext();
+//   useEffect(() => {
+//     if (errorNetwork) {
+//       setTimeout(() => {
+//         setContentError('');
+//       }, 5000);
+//     }
+//   }, [errorNetwork]);
 
-  if (!errorNetwork) {
-    return null;
-  }
+//   if (!errorNetwork) {
+//     return null;
+//   }
+//   return (
+//     <Flex bg={"tomato"}>
+//       <Text>{errorNetwork}</Text>
+//     </Flex>
+//   );
+// };
+
+const NotActive = () => {
   return (
-    <Flex bg={"tomato"}>
-      <Text>{errorNetwork}</Text>
-    </Flex>
+    <Alert status="warning">
+      <AlertIcon />
+      <AlertTitle mr={2}>Connect to Rinkeby Network</AlertTitle>
+    </Alert>
   );
 };
 
 export const ContractInfo = (props) => {
   const {isOpen, onOpen, onClose} = useDisclosure();
-  const {active, account} = useWeb3React();
+  const {active, account, chainId} = useWeb3React();
   const {error, verified, ...rest} = props;
-
 
   return (
     <Box 
@@ -148,6 +156,7 @@ export const ContractInfo = (props) => {
       boxShadow={'2xl'}
       rounded={'md'}
     >
+      {/* {!active && !injected.supportedChainIds.includes(chainId) && <NotActive />} */}
       {!verified && error && <Alert status="warning">
               <AlertIcon />
               <AlertTitle mr={2}>{error}</AlertTitle>

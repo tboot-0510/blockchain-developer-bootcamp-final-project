@@ -12,8 +12,8 @@ const StyledIdenticon = styled.div`
 `;
 
 export default function Identicon(props) {
-  const ref = useRef<HTMLDivElement>();
-  // const { account } = useWeb3React();
+  // const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef(null);
 
   useEffect(() => {
     if (props.account && ref.current) {
@@ -22,5 +22,5 @@ export default function Identicon(props) {
     }
   }, [props.account]);
 
-  return <StyledIdenticon ref={ref as any} />;
+  return <StyledIdenticon ref={ref} />;
 }

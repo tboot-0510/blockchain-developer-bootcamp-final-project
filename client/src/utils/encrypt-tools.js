@@ -1,6 +1,6 @@
 import bs58 from 'bs58';
-var CryptoJS = require("crypto-js");
 import ipfsClient from '../ipfs.js';
+var CryptoJS = require("crypto-js");
 
 export const getBytes32FromIpfsHash = (ipfsHash) => {
   return "0x"+bs58.decode(ipfsHash).slice(2).toString('hex');

@@ -25,7 +25,7 @@ interface User {
 }
 
 export default function LandingSet(){
-  const [allProfiles, setProfiles] = useState<User[]>([
+  const [allProfiles, setProfiles] = useState([
     { id: "0", name: "Admin", role: "admin", page: "/admin"},
     { id: "1", name: "Doctor", role: "doctor", page: "/doctor" },
     { id: "2", name: "Patient", role: "patient", page: "/patient"},
